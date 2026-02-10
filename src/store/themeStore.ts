@@ -6,6 +6,9 @@ interface ThemeState {
 }
 
 export const useThemeStore = create<ThemeState>((set) => ({
-  isDark: false,
-  toggleTheme: () => set((state) => ({ isDark: !state.isDark })),
+  isDark: false, // Always white theme
+  toggleTheme: () => {
+    // Theme switching disabled - white theme only
+    console.log('White theme is currently the only available theme');
+  },
 }));

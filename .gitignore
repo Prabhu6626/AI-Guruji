@@ -23,5 +23,14 @@ dist-ssr
 *.sln
 *.sw?
 .bolt
+
+# Environment
 .env
 .env.local
+.env.*.local
+
+# Database
+data/
+*.db
+*.sqlite
+*.sqlite3

@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 import { User } from '../types';
-import { supabase } from '../lib/supabase';
-import { Session, User as SupabaseUser } from '@supabase/supabase-js';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  session: Session | null;
+  token: string | null;
   login: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   register: (email: string, password: string, name: string) => Promise<{ error: Error | null, user: User | null }>;
@@ -15,83 +15,108 @@ interface AuthState {
   refreshSession: () => Promise<void>;
 }
 
-// Helper to convert Supabase user to our User type
-const formatUser = (user: SupabaseUser): User => {
-  return {
-    id: user.id,
-    email: user.email || '',
-    name: user.user_metadata?.name || user.email?.split('@')[0] || '',
-    avatar: user.user_metadata?.avatar_url || '',
-  };
-};
-
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  session: null,
+  token: null,
 
   login: async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (!error && data?.user) {
-      set({
-        user: formatUser(data.user),
-        isAuthenticated: true,
-        session: data.session,
-        isLoading: false,
+    try {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-    }
 
-    return { error };
-  },
+      if (!response.ok) {
+        const data = await response.json();
+        const error = new Error(data.error || 'Login failed');
+        return { error };
+      }
 
-  signInWithGoogle: async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+      const data = await response.json();
+      localStorage.setItem('auth_token', data.token);
+      localStorage.setItem('user_id', data.id.toString());
 
-    return { error };
-  },
+      const user: User = {
+        id: data.id.toString(),
+        email: data.email,
+        name: data.name || '',
+        avatar: '',
+      };
 
-  register: async (email, password, name) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-        },
-      },
-    });
-
-    let user = null;
-    if (!error && data?.user) {
-      user = formatUser(data.user);
       set({
         user,
         isAuthenticated: true,
-        session: data.session,
+        token: data.token,
         isLoading: false,
       });
-    }
 
-    return { error, user };
+      return { error: null };
+    } catch (error) {
+      return { error: error instanceof Error ? error : new Error('Login failed') };
+    }
+  },
+
+  signInWithGoogle: async () => {
+    return { error: new Error('Google sign-in is not available with local authentication') };
+  },
+
+  register: async (email, password, name) => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        const error = new Error(data.error || 'Registration failed');
+        return { error, user: null };
+      }
+
+      const data = await response.json();
+      localStorage.setItem('auth_token', data.token);
+      localStorage.setItem('user_id', data.id.toString());
+
+      const user: User = {
+        id: data.id.toString(),
+        email: data.email,
+        name: data.name || '',
+        avatar: '',
+      };
+
+      set({
+        user,
+        isAuthenticated: true,
+        token: data.token,
+        isLoading: false,
+      });
+
+      return { error: null, user };
+    } catch (error) {
+      return { error: error instanceof Error ? error : new Error('Registration failed'), user: null };
+    }
   },
 
   logout: async () => {
     try {
-      await supabase.auth.signOut();
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        await fetch(`${API_URL}/api/auth/logout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+      }
     } catch (error) {
       console.error('Error during logout:', error);
     } finally {
-      set({ user: null, isAuthenticated: false, session: null, isLoading: false });
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_id');
+      set({ user: null, isAuthenticated: false, token: null, isLoading: false });
     }
   },
 
@@ -99,64 +124,42 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     
     try {
-      const { data, error } = await supabase.auth.getSession();
+      const token = localStorage.getItem('auth_token');
       
-      if (error) {
-        console.error('Error getting session:', error);
-        set({ user: null, isAuthenticated: false, session: null, isLoading: false });
+      if (!token) {
+        set({ user: null, isAuthenticated: false, token: null, isLoading: false });
         return;
       }
-      
-      if (data?.session) {
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) {
-          console.error('Error getting user:', userError);
-          set({ user: null, isAuthenticated: false, session: null, isLoading: false });
-          return;
-        }
-        
-        if (userData?.user) {
-          set({
-            user: formatUser(userData.user),
-            isAuthenticated: true,
-            session: data.session,
-            isLoading: false,
-          });
-          return;
-        }
+
+      const response = await fetch(`${API_URL}/api/auth/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const user: User = {
+          id: data.id.toString(),
+          email: data.email,
+          name: data.name || '',
+          avatar: '',
+        };
+
+        set({
+          user,
+          isAuthenticated: true,
+          token: data.token,
+          isLoading: false,
+        });
+      } else {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_id');
+        set({ user: null, isAuthenticated: false, token: null, isLoading: false });
       }
-      
-      // If we get here, there's no valid session
-      set({ user: null, isAuthenticated: false, session: null, isLoading: false });
     } catch (error) {
-      console.error('Unexpected error in refreshSession:', error);
-      set({ user: null, isAuthenticated: false, session: null, isLoading: false });
+      console.error('Error refreshing session:', error);
+      set({ user: null, isAuthenticated: false, token: null, isLoading: false });
     }
   },
 }));
-
-// Initialize auth state on app load
-try {
-  supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state change event:', event);
-    if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-      const user = session.user;
-      useAuthStore.setState({
-        user: formatUser(user),
-        isAuthenticated: true,
-        session,
-        isLoading: false,
-      });
-    } else if (event === 'SIGNED_OUT') {
-      useAuthStore.setState({
-        user: null,
-        isAuthenticated: false,
-        session: null,
-        isLoading: false,
-      });
-    }
-  });
-} catch (error) {
-  console.error('Error setting up auth state change listener:', error);
-}

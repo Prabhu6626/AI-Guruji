@@ -333,39 +333,42 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Welcome to AI Guruji!</h1>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-        Track your progress and continue your career exploration journey
-      </p>
-      </div>
-
-      {/* API Status Indicator (for debugging) */}
-      {FEATURES.ENABLE_DEBUG_LOGGING && (
-        <div className="mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded text-sm">
-          <p>
-            API Status: 
-            {apiConnectionStatus === 'untested' && <span className="ml-2 text-gray-500">Not tested yet</span>}
-            {apiConnectionStatus === 'success' && <span className="ml-2 text-green-500">Connected</span>}
-            {apiConnectionStatus === 'failed' && <span className="ml-2 text-red-500">Connection failed</span>}
-          </p>
-          <p className="mt-1 text-xs text-gray-500">
-            {FEATURES.ENABLE_GEMINI_API 
-              ? `Using Gemini model: ${GEMINI_MODEL} for recommendations` 
-              : "Using mock data for recommendations (API disabled)"}
+    <div className="min-h-screen bg-white pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Welcome back!</h1>
+          <p className="mt-2 text-gray-600">
+            Track your progress and discover your perfect career path
           </p>
         </div>
-      )}
 
-      {/* AI Career Recommendations Section */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <Sparkles className="h-5 w-5 text-yellow-500 mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Gemini AI Career Recommendations
-            </h2>
+        {/* API Status Indicator (for debugging) */}
+        {FEATURES.ENABLE_DEBUG_LOGGING && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+            <p className="text-gray-700">
+              API Status: 
+              {apiConnectionStatus === 'untested' && <span className="ml-2 text-gray-500">Not tested yet</span>}
+              {apiConnectionStatus === 'success' && <span className="ml-2 text-green-600 font-medium">Connected</span>}
+              {apiConnectionStatus === 'failed' && <span className="ml-2 text-red-600 font-medium">Connection failed</span>}
+            </p>
+            <p className="mt-1 text-xs text-gray-600">
+              {FEATURES.ENABLE_GEMINI_API 
+                ? `Using Gemini model: ${GEMINI_MODEL} for recommendations` 
+                : "Using mock data for recommendations (API disabled)"}
+            </p>
+          </div>
+        )}
+
+        {/* AI Career Recommendations Section */}
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                <Sparkles className="h-5 w-5 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Career Recommendations
+              </h2>
             <div className="relative ml-2 group">
               <AlertCircle className="h-4 w-4 text-gray-400 cursor-help" />
               <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
@@ -374,101 +377,98 @@ export default function Dashboard() {
             </div>
           </div>
           {totalAssessmentsCompleted > 0 && (
-            <button
-              onClick={generateCareerRecommendations}
-              className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center"
-              disabled={isLoadingRecommendations}
-            >
-              <span>{isLoadingRecommendations ? 'Analyzing with Gemini...' : 'Refresh Analysis'}</span>
-            </button>
+              <button
+                onClick={generateCareerRecommendations}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                disabled={isLoadingRecommendations}
+              >
+                <span>{isLoadingRecommendations ? 'Analyzing...' : 'Refresh'}</span>
+              </button>
           )}
         </div>
 
-        {totalAssessmentsCompleted === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-            <Briefcase className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Career Recommendations Yet</h3>
-            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-              Complete at least one assessment to receive personalized AI career recommendations.
-            </p>
-            <button
-              onClick={() => handleStartAssessment('interest')}
-              className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-            >
-              Start an Assessment
-            </button>
-          </div>
-        ) : isLoadingRecommendations ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-            <div className="animate-pulse flex flex-col items-center">
-              <div className="rounded-full bg-gray-200 dark:bg-gray-700 h-16 w-16 mb-4"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-2"></div>
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-            </div>
-            <p className="mt-4 text-gray-500 dark:text-gray-400">
-              {FEATURES.ENABLE_GEMINI_API 
-                ? `Gemini AI (${GEMINI_MODEL}) is analyzing your assessment results...` 
-                : "Simulating AI analysis of your assessment results..."}
-            </p>
-            {FEATURES.ENABLE_GEMINI_API && (
-              <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-                Connecting to Google's Gemini API for personalized career recommendations
+          {totalAssessmentsCompleted === 0 ? (
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-8 text-center">
+              <div className="bg-blue-200 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Start Your Assessment</h3>
+              <p className="text-gray-700 max-w-md mx-auto mb-6">
+                Complete an assessment to receive personalized career recommendations based on your interests and strengths.
               </p>
-            )}
-          </div>
+              <button
+                onClick={() => handleStartAssessment('interest')}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Begin Assessment
+              </button>
+            </div>
+          ) : isLoadingRecommendations ? (
+            <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="rounded-full bg-gray-200 h-16 w-16 mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-2/3 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+              <p className="mt-6 text-gray-600 font-medium">
+                Analyzing your results...
+              </p>
+              <p className="mt-2 text-xs text-gray-500">
+                This may take a moment
+              </p>
+            </div>
         ) : (
           <div>
             {careerRecommendations.length > 0 ? (
               <div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {careerRecommendations.map((recommendation, index) => (
-                    <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                      <div className={`h-2 ${index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-indigo-500' : 'bg-teal-500'}`}></div>
-                      <div className="p-5">
-                        <div className="flex justify-between items-start">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{recommendation.career}</h3>
-                          <div className="flex items-center bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded text-xs font-medium">
-                            <Star className="h-3 w-3 text-yellow-500 mr-1" />
-                            <span className="text-indigo-700 dark:text-indigo-300">{recommendation.match}% Match</span>
+                    {careerRecommendations.map((recommendation, index) => (
+                      <div key={index} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                        <div className={`h-2 ${index === 0 ? 'bg-blue-500' : index === 1 ? 'bg-green-500' : 'bg-purple-500'}`}></div>
+                        <div className="p-6">
+                          <div className="flex justify-between items-start mb-3">
+                            <h3 className="text-lg font-bold text-gray-900">{recommendation.career}</h3>
+                            <div className="flex items-center bg-blue-100 px-3 py-1 rounded-full text-xs font-bold">
+                              <Star className="h-3 w-3 text-yellow-500 mr-1" />
+                              <span className="text-blue-700">{recommendation.match}%</span>
+                            </div>
                           </div>
-                        </div>
-                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                          {recommendation.description}
-                        </p>
-                        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">Match Strength</span>
-                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{recommendation.match}%</span>
-                          </div>
-                          <div className="mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                            <div 
-                              className={`h-1.5 rounded-full ${
-                                index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-indigo-500' : 'bg-teal-500'
-                              }`} 
-                              style={{ width: `${recommendation.match}%` }}
-                            ></div>
+                          <p className="text-sm text-gray-600 mb-4">
+                            {recommendation.description}
+                          </p>
+                          <div className="pt-3 border-t border-gray-100">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-xs text-gray-500">Match Strength</span>
+                              <span className="text-xs font-medium text-gray-700">{recommendation.match}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full ${
+                                  index === 0 ? 'bg-blue-500' : index === 1 ? 'bg-green-500' : 'bg-purple-500'
+                                }`} 
+                                style={{ width: `${recommendation.match}%` }}
+                              ></div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
                 
-                <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4">
+                <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
                   <div className="flex">
-                    <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400 mr-2 flex-shrink-0" />
+                    <Sparkles className="h-5 w-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-indigo-800 dark:text-indigo-300">
-                        AI-Generated Career Recommendations
+                      <p className="font-bold text-gray-900">
+                        AI-Powered Insights
                       </p>
-                      <p className="mt-1 text-sm text-indigo-700 dark:text-indigo-400">
-                        These recommendations are generated by analyzing your assessment results using Google's Gemini AI. 
-                        The AI considers your interests, aptitudes, and preferences to suggest careers that might be a good match for you.
+                      <p className="mt-1 text-sm text-gray-700">
+                        Based on your assessment results, these careers match your interests, strengths, and preferences.
                       </p>
                       {totalAssessmentsCompleted < 3 && (
-                        <p className="mt-2 text-sm text-indigo-700 dark:text-indigo-400">
+                        <p className="mt-2 text-sm text-gray-600">
                           Complete all three assessments for more accurate recommendations.
                         </p>
                       )}
@@ -477,15 +477,17 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-                <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Recommendations Available</h3>
-                <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                  We couldn't generate career recommendations at this time. Please try again later.
+              <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+                <div className="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="h-8 w-8 text-yellow-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">No Recommendations Available</h3>
+                <p className="text-gray-600 max-w-md mx-auto mb-6">
+                  We couldn't generate recommendations right now. Please try again.
                 </p>
                 <button
                   onClick={generateCareerRecommendations}
-                  className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                 >
                   Try Again
                 </button>
@@ -493,6 +495,7 @@ export default function Dashboard() {
             )}
           </div>
         )}
+      </div>
         
         {totalAssessmentsCompleted > 0 && totalAssessmentsCompleted < 3 && !isLoadingRecommendations && careerRecommendations.length > 0 && (
           <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 text-sm">

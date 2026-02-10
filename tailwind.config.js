@@ -4,6 +4,9 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      colors: {
+        primary: '#2563eb', // blue-600
+      },
       animation: {
         'gradient': 'gradient 8s linear infinite',
       },

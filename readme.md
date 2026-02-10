@@ -1,54 +1,46 @@
-# PROJECT IS IN DEVELOPMENT PHASE AND I AM REBUILDING THIS PROJECTS.
+# AI Guruji - AI-Powered Career Guidance Platform
 
-live link : https://ai-guruji.netlify.app/
+A modern, intelligent career counseling platform designed to help students discover their ideal career path through personalized assessments and AI-driven insights.
 
-
-
-# AI Guruji - AI-Powered Career Guidance Platform (SIH - 2023 winner project)
-
-AI Guruji is a career counseling platform for secondary and higher secondary school students. It helps students explore their strengths and interests through a series of assessments and provides AI-driven guidance based on test results. This application integrates psychometric testing with AI, enabling students to make informed decisions about their future education and career paths.
+**Status:** Completely rebuilt with clean white theme, local SQLite database, and improved UX.
 
 ## Features
 
-### Home Page
-
-- Modern, animated hero section
-- Personalized career path discovery
-- Dark mode support
-
-### Assessment System
-
-- Multiple assessment types
-- Progress tracking
-- Detailed career compatibility analysis
-
-### AI Career Assistant
-
-- Real-time AI guidance
-- Personalized recommendations
-- Assessment result integration
+- **Clean White Theme**: Modern, minimalist design for easy navigation
+- **Local SQLite Database**: All data stored locally without external dependencies
+- **Assessment System**: Multiple career assessment tests (Interest, Aptitude, Non-Conventional)
+- **AI Career Recommendations**: Personalized career suggestions based on assessment results
+- **User Authentication**: Secure email/password authentication
+- **Dashboard**: Track your progress and view personalized recommendations
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## Tech Stack
 
-### Core
-- React 18
-- TypeScript
-- Vite
+### Frontend
+- React 18 with TypeScript
+- Vite for fast development
+- Tailwind CSS for styling
+- Framer Motion for animations
+- Chart.js for data visualization
+- Lucide React for icons
 
-### UI/UX
-- Tailwind CSS
-- Framer Motion (animations)
-- Headless UI
-- Lucide React (icons)
+### Backend
+- Express.js server
+- SQLite3 database
+- bcryptjs for password hashing
+- CORS for cross-origin requests
 
-### Data & State Management
-- Zustand
-- Chart.js with react-chartjs-2
-
-### Routing
-- React Router DOM v6
+### State Management
+- Zustand for client-side state
+- React Router for navigation
 
 ## Getting Started
+
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation
 
 1. Clone the repository
 ```bash
@@ -61,36 +53,97 @@ cd ai-guruji
 npm install
 ```
 
-3. Start development server
+### Development
+
+Start both the backend server and frontend dev server:
+
 ```bash
 npm run dev
 ```
 
-4. Build for production
+This command runs:
+- Backend server on `http://localhost:5000`
+- Frontend dev server on `http://localhost:5173`
+
+### Build for Production
+
 ```bash
 npm run build
 ```
 
-## Development Scripts
+### Server Only
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run lint` - Run ESLint
-- `npm run preview` - Preview production build
+To run just the backend server:
+```bash
+npm run server
+```
 
 ## Project Structure
 
 ```
 ai-guruji/
 ├── src/
-│   ├── pages/          # Page components
-│   ├── components/     # Reusable components
-│   ├── store/         # Zustand store
-│   ├── types/         # TypeScript types
-│   └── utils/         # Utility functions
-├── public/            # Static assets
-└── index.html         # Entry point
+│   ├── pages/          # Page components (Home, Login, Dashboard, etc.)
+│   ├── components/     # Reusable UI components
+│   ├── store/         # Zustand state management
+│   ├── types/         # TypeScript type definitions
+│   ├── utils/         # Utility functions
+│   ├── config/        # Configuration files
+│   └── data/          # Data files (questions, etc.)
+├── server.js          # Express backend server
+├── .env               # Environment variables
+├── tailwind.config.js # Tailwind CSS configuration
+└── package.json       # Dependencies and scripts
 ```
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+
+```
+VITE_API_URL=http://localhost:5000
+```
+
+## Database
+
+The application uses SQLite3 for local data storage. The database file is automatically created at:
+```
+data/guruji.db
+```
+
+Database includes tables for:
+- Users
+- Assessment Results
+- Career Recommendations
+- Sessions
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/verify` - Verify token
+- `POST /api/auth/logout` - Logout user
+
+### Assessments
+- `POST /api/assessments/save` - Save assessment results
+- `GET /api/assessments/:userId` - Get user assessments
+
+### Recommendations
+- `POST /api/recommendations/save` - Save recommendations
+- `GET /api/recommendations/:userId` - Get user recommendations
+
+### User Profile
+- `GET /api/users/:userId` - Get user profile
+- `PUT /api/users/:userId` - Update user profile
+
+## Scripts
+
+- `npm run dev` - Start development (frontend + backend)
+- `npm run server` - Start backend server only
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
 
 ## Contributing
 
@@ -103,5 +156,8 @@ ai-guruji/
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-```
+
+## Support
+
+For issues and questions, please open an issue on the GitHub repository.
 
