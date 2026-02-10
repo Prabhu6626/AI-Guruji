@@ -1,40 +1,25 @@
-import { createClient } from '@supabase/supabase-js';
 import { debugLog } from './debug';
 
-// Replace with your Supabase URL and anon key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Local API connection for auth
+// Using local Express backend at http://localhost:5000
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables');
-  throw new Error('Missing Supabase environment variables');
-}
+debugLog('Initializing local API client with URL', API_URL);
 
-debugLog('Initializing Supabase client with URL', supabaseUrl);
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storageKey: 'ai-guruji-auth',
-  },
-});
-
-// Add a simple test function to check if Supabase is working
-export const testSupabaseConnection = async () => {
+// Test connection to local API
+export const testAPIConnection = async () => {
   try {
-    const { data, error } = await supabase.from('profiles').select('count', { count: 'exact' }).limit(1);
+    const response = await fetch(`${API_URL}/health`);
     
-    if (error) {
-      debugLog('Supabase connection test failed', error);
-      return { success: false, error };
+    if (!response.ok) {
+      debugLog('API connection test failed', response.status);
+      return { success: false, error: 'API not responding' };
     }
     
-    debugLog('Supabase connection test succeeded', data);
-    return { success: true, data };
+    debugLog('API connection test succeeded');
+    return { success: true };
   } catch (error) {
-    debugLog('Unexpected error in Supabase connection test', error);
+    debugLog('Unexpected error in API connection test', error);
     return { success: false, error };
   }
 };

@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 import { ThemeProvider } from './components/ThemeProvider';
-import SupabaseAuthProvider from './components/SupabaseAuthProvider';
 import { useThemeStore } from './store/themeStore';
 import { useAuthStore } from './store/authStore';
 import AuthDebug from './components/AuthDebug';
@@ -82,9 +81,8 @@ function App() {
 
   return (
     <ThemeProvider>
-      <SupabaseAuthProvider>
-        <BrowserRouter>
-          <Suspense fallback={<LoadingSpinner />}>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
@@ -107,9 +105,7 @@ function App() {
               </Route>
             </Routes>
           </Suspense>
-        </BrowserRouter>
-        {import.meta.env.DEV && <AuthDebug />}
-      </SupabaseAuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
